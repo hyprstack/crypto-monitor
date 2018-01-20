@@ -1,0 +1,24 @@
+{
+  "name": "cryptowatch-exchangeservice",
+  "version": "1.0.0",
+  "description": "Streams crypto currencies from cryptocompare to a single socket endpoint",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RichAppz/CryptoWatch-ExchangeService.git"
+  },
+  "author": "[{name: Mario Mendes, git_handle: hyprstack}, {name: Rich Abery, git_handle: RichAppz}]",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RichAppz/CryptoWatch-ExchangeService/issues"
+  },
+  "homepage": "https://github.com/RichAppz/CryptoWatch-ExchangeService#readme",
+  "dependencies": {
+    "express": "4.16.2",
+    "nconf": "^0.10.0",
+    "socket.io": "2.0.4"
+  }
+}
