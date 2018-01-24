@@ -3,9 +3,6 @@
  */
 const express  = require('express');
 const app      = express();
-const clientIo = require('./lib/client-socket/crytpto-compare-socket');
-
-clientIo.connect();
 
 app.disable('x-powered-by');
 
