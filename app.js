@@ -3,6 +3,7 @@
  */
 const express  = require('express');
 const app      = express();
+const clientIo = require('./lib/socket/socket');
 
 app.disable('x-powered-by');
 
