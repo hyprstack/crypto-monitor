@@ -8,7 +8,7 @@ const _port = configs.get('PORT');
 
 const server = app.listen(_port, () => {
   const port = server.address().port;
-console.log('App listening on port %s', port);
+  console.log('App listening on port %s', port);
 });
 
 module.exports = server;
