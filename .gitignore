@@ -14,3 +14,5 @@ node_modules/
 
 # Configuration files
 configs.json
+
+index.html

@@ -3,8 +3,13 @@
  */
 const express  = require('express');
 const app      = express();
-const clientIo = require('./lib/socket/socket');
+const cors     = require('cors');
 
 app.disable('x-powered-by');
+app
+  .use(cors({
+    origin: true,
+    credentials: true
+  }))
 
 module.exports = app;
