@@ -50,3 +50,9 @@
 
 </script>
 ```
+
+Logic path:
+    . Connect to exchanges themselves!!!!!
+    . Bitrex
+    . Binance
+    . Coinbase

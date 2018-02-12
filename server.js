@@ -4,7 +4,9 @@
 const app                 = require('./app');
 const configs             = require('./lib/config/configs');
 const io                  = require('socket.io');
-const cryptoCompareSocket = require('./lib/client-socket/crytpto-compare-socket');
+const coinBaseSocket = require('./lib/client-socket/crytpto-compare-socket');
+
+const coinBaseConfigs = configs.get('COINBASE_API');
 
 const _port = configs.get('PORT');
 
@@ -17,14 +19,21 @@ const socketConfig = configs.get('SOCKET');
 
 const socket = io.listen(server, socketConfig);
 
-const formCryptoCompareRequest = ({ exchange, fromCoin, toCoin }) => `2~${exchange}~${fromCoin}~${toCoin}`;
+const formCoinBaseRequest = ({ fromCoin, toCoin }) => {
+  return {
+    "type": "hello",
+    "apikey": coinBaseConfigs.AUTH.X_CoinAPI_Key,
+    "heartbeat": false,
+    "subscribe_data_type": ["quote"]
+  }
+};
 
 const createRoomName = (data) => {
   if (Array.isArray(data)) {
-    return data.join('-');
+    return data.join('_');
   }
-  const { exchange, fromCoin, toCoin } =  data;
-  return `${exchange}~${fromCoin}~${toCoin}`;
+  const { fromCoin, toCoin } =  data;
+  return `${fromCoin}_${toCoin}`;
 };
 
 socket.on('connection', (client) => {
@@ -33,10 +42,10 @@ socket.on('connection', (client) => {
   client.on('getExchangeRate', function(data) {
     console.log(data);
     const room = createRoomName(data.subs);
-    let cryptoIo = cryptoCompareSocket.connect();
+    let cryptoIo = coinBaseSocket.connect();
     client.join(room, () => {
-      const requestedExchange = formCryptoCompareRequest(data.subs);
-      cryptoIo.emit('SubAdd', { subs: [requestedExchange]} );
+      const requestedExchange = formCoinBaseRequest(data.subs);
+      cryptoIo.emit('Hello', requestedExchange );
     });
 
     cryptoIo.on('m', (msg) => {
