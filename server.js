@@ -1,10 +1,10 @@
 /**
  * Created by mario (https://github.com/hyprstack) on 20/01/2018.
  */
-const app                 = require('./app');
-const configs             = require('./lib/config/configs');
-const io                  = require('socket.io');
-const coinBaseSocket = require('./lib/client-socket/crytpto-compare-socket');
+const app            = require('./app');
+const configs        = require('./lib/config/configs');
+const io             = require('socket.io');
+const coinBaseSocket = require('./lib/client-socket/coinbase-socket');
 
 const coinBaseConfigs = configs.get('COINBASE_API');
 
@@ -23,8 +23,8 @@ const formCoinBaseRequest = ({ fromCoin, toCoin }) => {
   return {
     "type": "hello",
     "apikey": coinBaseConfigs.AUTH.X_CoinAPI_Key,
-    "heartbeat": false,
-    "subscribe_data_type": ["quote"]
+    "heartbeat": true,
+    "subscribe_data_type": ["trade"]
   }
 };
 
@@ -37,34 +37,26 @@ const createRoomName = (data) => {
 };
 
 socket.on('connection', (client) => {
-  console.log('Client connected...', client);
+  console.log('Client connected...');
+  coinBaseSocket.connect(coinBaseConfigs.ENDPOINT);
 
   client.on('getExchangeRate', function(data) {
-    console.log(data);
     const room = createRoomName(data.subs);
-    let cryptoIo = coinBaseSocket.connect();
     client.join(room, () => {
       const requestedExchange = formCoinBaseRequest(data.subs);
-      cryptoIo.emit('Hello', requestedExchange );
     });
 
-    cryptoIo.on('m', (msg) => {
-      socket.sockets.in(room).emit('coinExchange', msg);
-    });
+    // cryptoIo.on('message', (msg) => {
+    //   socket.sockets.in(room).emit('coinExchange', msg);
+    // });
   });
 
   client.on('getExchangeRates', function(data) {
-    console.log(data);
-    let cryptoIo = cryptoCompareSocket.connect();
     const room = createRoomName(data.subs);
-    client.join(room, () => {
-      const requestedExchanges = data.subs.map(formCryptoCompareRequest);
-      cryptoIo.emit('SubAdd', { subs: requestedExchanges  } );
-    });
 
-    cryptoIo.on('m', (msg) => {
-      socket.sockets.in(room).emit('coinExchanges', msg);
-    });
+    // cryptoIo.on('m', (msg) => {
+    //   socket.sockets.in(room).emit('coinExchanges', msg);
+    // });
   });
 });
 
