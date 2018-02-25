@@ -4,7 +4,8 @@
 const app            = require('./app');
 const configs        = require('./lib/config/configs');
 const io             = require('socket.io');
-const coinBaseSocket = require('./lib/client-socket/coinbase-socket');
+const coinBaseSocket = require('./lib/coinapi-socket/coinbase-socket');
+const customEmitter  = require('./lib/custom-emitter/internal-emitter');
 
 const coinBaseConfigs = configs.get('COINBASE_API');
 
@@ -19,15 +20,6 @@ const socketConfig = configs.get('SOCKET');
 
 const socket = io.listen(server, socketConfig);
 
-const formCoinBaseRequest = ({ fromCoin, toCoin }) => {
-  return {
-    "type": "hello",
-    "apikey": coinBaseConfigs.AUTH.X_CoinAPI_Key,
-    "heartbeat": true,
-    "subscribe_data_type": ["trade"]
-  }
-};
-
 const createRoomName = (data) => {
   if (Array.isArray(data)) {
     return data.join('_');
@@ -38,26 +30,27 @@ const createRoomName = (data) => {
 
 socket.on('connection', (client) => {
   console.log('Client connected...');
-  coinBaseSocket.connect(coinBaseConfigs.ENDPOINT);
+
+  customEmitter.emit('connectExchanges')
 
   client.on('getExchangeRate', function(data) {
     const room = createRoomName(data.subs);
     client.join(room, () => {
-      const requestedExchange = formCoinBaseRequest(data.subs);
+      customEmitter.emit('connectToExchange', data.subs)
     });
 
-    // cryptoIo.on('message', (msg) => {
-    //   socket.sockets.in(room).emit('coinExchange', msg);
-    // });
+    customEmitter.on('coinApiExchanges', (msg) => {
+      socket.sockets.in(room).emit('coinExchange', msg);
+    });
   });
 
-  client.on('getExchangeRates', function(data) {
-    const room = createRoomName(data.subs);
-
-    // cryptoIo.on('m', (msg) => {
-    //   socket.sockets.in(room).emit('coinExchanges', msg);
-    // });
-  });
+  // client.on('getExchangeRates', function(data) {
+  //   const room = createRoomName(data.subs);
+  //
+  //   customEmitter.on('coinApiExchanges', (msg) => {
+  //     socket.sockets.in(room).emit('coinExchanges', msg);
+  //   });
+  // });
 });
 
 module.exports = server;
