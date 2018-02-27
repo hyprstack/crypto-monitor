@@ -4,10 +4,8 @@
 const app            = require('./app');
 const configs        = require('./lib/config/configs');
 const io             = require('socket.io');
-const coinBaseSocket = require('./lib/coinapi-socket/coinbase-socket');
 const customEmitter  = require('./lib/custom-emitter/internal-emitter');
-
-const coinBaseConfigs = configs.get('COINBASE_API');
+require('./lib/coinapi-socket/coinbase-socket');
 
 const _port = configs.get('PORT');
 
@@ -22,35 +20,46 @@ const socket = io.listen(server, socketConfig);
 
 const createRoomName = (data) => {
   if (Array.isArray(data)) {
-    return data.join('_');
+    const roomNameList = data.map((coins) => {
+      const { fromCoin, toCoin } =  coins;
+      return `${fromCoin}_${toCoin}-`;
+    });
+    return ''.concat(...roomNameList)
   }
   const { fromCoin, toCoin } =  data;
-  return `${fromCoin}_${toCoin}`;
+  return `${fromCoin}_${toCoin}-`;
 };
+
+const extractPartialRoomNameFromData = (data) => {
+  const { symbol_id, type } = JSON.parse(data.utf8Data)
+  if (type === 'heartbeat') return
+  const coinPair = symbol_id.split('SPOT_').pop();
+  return `${coinPair}-`;
+
+}
 
 socket.on('connection', (client) => {
   console.log('Client connected...');
 
   customEmitter.emit('connectExchanges')
 
-  client.on('getExchangeRate', function(data) {
+  client.on('getExchangeRates', function(data) {
     const room = createRoomName(data.subs);
     client.join(room, () => {
-      customEmitter.emit('connectToExchange', data.subs)
+      console.log(`A new client has joined the room ${room}`)
     });
 
     customEmitter.on('coinApiExchanges', (msg) => {
-      socket.sockets.in(room).emit('coinExchange', msg);
+      const partialMatch = extractPartialRoomNameFromData(msg)
+      if (room.includes(partialMatch)) {
+        socket.sockets.in(room).emit('coinExchange', msg.utf8Data);
+      }
     });
-  });
 
-  // client.on('getExchangeRates', function(data) {
-  //   const room = createRoomName(data.subs);
-  //
-  //   customEmitter.on('coinApiExchanges', (msg) => {
-  //     socket.sockets.in(room).emit('coinExchanges', msg);
-  //   });
-  // });
+    client.on('disconnect', () => {
+      console.log(`Client disconnected and left room ${room}`);
+    })
+  });
 });
 
 module.exports = server;
