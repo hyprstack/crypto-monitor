@@ -32,10 +32,13 @@ const createRoomName = (data) => {
 
 const extractPartialRoomNameFromData = (data) => {
   const { symbol_id, type } = JSON.parse(data.utf8Data)
-  if (type === 'heartbeat') return
-  const coinPair = symbol_id.split('SPOT_').pop();
-  return `${coinPair}-`;
+  if (type === 'heartbeat') return;
+  return symbol_id.split('SPOT_').pop();
+}
 
+const checkCoinPairInRoomName = (coinPair, roomName) => {
+  const coinPairList = roomName.split('-');
+  return coinPairList.indexOf(coinPair) > -1;
 }
 
 socket.on('connection', (client) => {
@@ -51,7 +54,7 @@ socket.on('connection', (client) => {
 
     customEmitter.on('coinApiExchanges', (msg) => {
       const partialMatch = extractPartialRoomNameFromData(msg)
-      if (room.includes(partialMatch)) {
+      if (checkCoinPairInRoomName(partialMatch, room)) {
         socket.sockets.in(room).emit('coinExchange', msg.utf8Data);
       }
     });
