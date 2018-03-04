@@ -49,7 +49,7 @@ socket.on('connection', (client) => {
   client.on('getExchangeRates', function(data) {
     const room = createRoomName(data.subs);
     client.join(room, () => {
-      console.log(`A new client has joined the room ${room}`)
+      console.log(`A new client ${client.id} has joined the room ${room}`)
     });
 
     customEmitter.on('coinApiExchanges', (msg) => {
@@ -62,6 +62,12 @@ socket.on('connection', (client) => {
     client.on('disconnect', () => {
       console.log(`Client disconnected and left room ${room}`);
     })
+
+    client.on('cancelExchangeRates', () => {
+      console.log(`Client ${client.id} has requested to leave room ${room}`);
+      client.disconnect();
+    });
+
   });
 });
 
