@@ -51,8 +51,36 @@
 </script>
 ```
 
-Logic path:
-    . Connect to exchanges themselves!!!!!
-    . Bitrex
-    . Binance
-    . Coinbase
+### Signing the request
+
+##### To form the request header - *x-crypto-watch-signature*
+
+Run the following command to generate the keys from the root directory of this project.
+
+```bash
+  openssl genrsa -out ./lib/config/local-keys/my-server.key.pem 2048
+  openssl rsa -in ./lib/config/local-keys/my-server.key.pem -pubout -out ./lib/config/local-keys/client/my-server.pub
+```
+
+To generate the signature use `ursa` to encrypt the message with base64
+
+To generate the message create a string with `CryptoWatch/<eventName>/POST/<secretKey>`
+
+For node
+
+```javascript
+const ursa                = require('ursa');
+const configs             = require('./../config/configs');
+const expectKey           = configs.get('EXPECTED-KEY');
+const publicKeySignature  = ursa.createPublicKey(configs.get('PUBLIC_KEY'));
+
+const verifySignature = ({ headers, body }) => {
+  const { 'x-crypto-watch-signature': crypto_signature } = headers;
+  const { event } = body;
+  const msg = `CryptoWatch/${event}/POST/${expectKey}`;
+  const signature = publicKeySignature.encrypt(msg, 'utf8', 'base64');
+};
+```
+
+The generated signature should be sent as a header in the handshake
+

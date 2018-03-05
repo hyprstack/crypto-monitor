@@ -1,10 +1,10 @@
 /**
  * Created by mario (https://github.com/hyprstack) on 20/01/2018.
  */
-const app            = require('./app');
-const configs        = require('./lib/config/configs');
-const io             = require('socket.io');
-const customEmitter  = require('./lib/custom-emitter/internal-emitter');
+const io            = require('socket.io');
+const app           = require('./app');
+const configs       = require('./lib/config/configs');
+const customEmitter = require('./lib/custom-emitter/internal-emitter');
 require('./lib/coinapi-socket/coinbase-socket');
 
 const _port = configs.get('PORT');
