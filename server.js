@@ -48,6 +48,7 @@ socket.on('connection', (client) => {
 
   client.on('getExchangeRates', function(data) {
     const room = createRoomName(data.subs);
+
     client.join(room, () => {
       console.log(`A new client ${client.id} has joined the room ${room}`)
     });
@@ -64,8 +65,10 @@ socket.on('connection', (client) => {
     })
 
     client.on('cancelExchangeRates', () => {
-      console.log(`Client ${client.id} has requested to leave room ${room}`);
-      client.disconnect();
+      client.leave(room, () => {
+        console.log(`Client ${client.id} left room ${room}`);
+        client.emit('leftRoom', `Room ${room} left!`);
+      })
     });
 
   });
