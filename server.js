@@ -19,14 +19,13 @@ const socketConfig = configs.get('SOCKET');
 
 const socket = io.listen(server, socketConfig);
 
-io.use((socket, next) => {
+socket.use((socket, next) => {
   const { handshake } = socket;
-  console.log(socket)
-  console.log(handshake)
-  console.log(socket.eventNames())
-  console.log(socket.event)
-  next();
-})
+  if (validator.verifySignature(handshake)) {
+    return next();
+  }
+  return next(new Error('Invalid signature'));
+});
 
 const createRoomName = (data) => {
   if (Array.isArray(data)) {
