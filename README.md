@@ -53,7 +53,7 @@
 
 ### Signing the request
 
-##### To form the request header - *x-crypto-watch-signature*
+##### To form the request query - *x-crypto-watch-signature*
 
 Run the following command to generate the keys from the root directory of this project.
 
