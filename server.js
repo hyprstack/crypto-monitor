@@ -5,6 +5,7 @@ const io            = require('socket.io');
 const app           = require('./app');
 const configs       = require('./lib/config/configs');
 const customEmitter = require('./lib/custom-emitter/internal-emitter');
+const validator     = require('./lib/validator/check-signature');
 require('./lib/coinapi-socket/coinbase-socket');
 
 const _port = configs.get('PORT');
@@ -17,6 +18,15 @@ const server = app.listen(_port, () => {
 const socketConfig = configs.get('SOCKET');
 
 const socket = io.listen(server, socketConfig);
+
+io.use((socket, next) => {
+  const { handshake } = socket;
+  console.log(socket)
+  console.log(handshake)
+  console.log(socket.eventNames())
+  console.log(socket.event)
+  next();
+})
 
 const createRoomName = (data) => {
   if (Array.isArray(data)) {
