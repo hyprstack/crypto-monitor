@@ -1,11 +1,11 @@
-# CryptoWatch-ExchangeService
+# CryptoMonitor-ExchangeService
 
 ### Client example
 
 ```javascript
 <script>
   (function() {
-    var socket = io('http://localhost:3000', {path: '/cryptoWatch', reconnect: true, forceNew: true}).connect();
+    var socket = io('http://localhost:3000', {path: '/crypto-monitor', reconnect: true, forceNew: true}).connect();
     socket.on('connect', function(data) {
       console.log(data);
       socket.emit('getExchangeRate', {
@@ -53,7 +53,7 @@
 
 ### Signing the request
 
-##### To form the request query - *x-crypto-watch-signature*
+##### To form the request query - *x-crypto-monitor-signature*
 
 Run the following command to generate the keys from the root directory of this project.
 
@@ -64,7 +64,7 @@ Run the following command to generate the keys from the root directory of this p
 
 To generate the signature use `ursa` to encrypt the message with base64
 
-To generate the message create a string with `CryptoWatch/<eventName>/POST/<secretKey>`
+To generate the message create a string with `CryptoMonitor/<eventName>/POST/<secretKey>`
 
 For node
 
@@ -75,8 +75,8 @@ const secretKey           = configs.get('SECRET-KEY');
 const publicKeySignature  = ursa.createPublicKey(configs.get('PUBLIC_KEY'));
 
 const verifySignature = ({ query }) => {
-  const { 'x-crypto-watch-signature': crypto_signature } = query;
-  const msg = `CryptoWatch/POST/${secretKey}/getExchanges`;
+  const { 'x-crypto-monitor-signature': crypto_signature } = query;
+  const msg = `CryptoMonitor/POST/${secretKey}/getExchanges`;
   const signature = publicKeySignature.encrypt(msg, 'utf8', 'base64');
   
   // The signature sent from the client needs to be decrypted before the handshake is complete
