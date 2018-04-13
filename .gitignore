@@ -15,5 +15,6 @@ node_modules/
 # Configuration files
 configs.json
 
-index.html
+#Sample index files
+# example-index.html
 index2.html

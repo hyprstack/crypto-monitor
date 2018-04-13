@@ -87,3 +87,5 @@ The generated signature should be sent as a query in the handshake
 
 Please refer to [socketio](https://socket.io/docs/client-api/#with-query-option) for details on how to send the query.
 
+Please refer to `example-index.html` on how to format the query
+
